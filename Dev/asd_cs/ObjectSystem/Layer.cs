@@ -116,35 +116,10 @@ namespace asd
 
 		internal abstract void DrawAdditionally();
 
-		internal void BeginDrawing()
-		{
-			Scene.CoreScene.SetRenderTargetForDrawingLayer();
-			commonObject.BeginDrawing();
-		}
+		internal abstract void BeginDrawing();
 
-		internal void EndDrawing()
-		{
-			commonObject.EndDrawing();
-
-			if(postEffects.Count > 0)
-			{
-				foreach(var p in postEffects)
-				{
-					Scene.CoreScene.BeginPostEffect(p.SwigObject);
-
-					var src_ = Scene.CoreScene.GetSrcTarget();
-					var dst_ = Scene.CoreScene.GetDstTarget();
-
-					RenderTexture2D src = GC.GenerateRenderTexture2D(src_, GC.GenerationType.Get);
-					RenderTexture2D dst = GC.GenerateRenderTexture2D(dst_, GC.GenerationType.Get);
-
-					p.OnDraw(dst, src);
-
-					Scene.CoreScene.EndPostEffect(p.SwigObject);
-				}
-			}
-		}
-
+		internal abstract void EndDrawing();
+	
 		internal void Start()
 		{
 			OnStart();

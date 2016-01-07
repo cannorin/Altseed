@@ -6,35 +6,6 @@ using namespace std;
 
 namespace asd
 {
-	void Layer::BeginDrawing()
-	{
-		GetScene()->m_coreScene->SetRenderTargetForDrawingLayer();
-		m_commonObject->BeginDrawing();
-	}
-
-	void Layer::EndDrawing()
-	{
-		m_commonObject->EndDrawing();
-
-		if (m_postEffects.size() > 0)
-		{
-			for (auto& p : m_postEffects)
-			{
-				GetScene()->m_coreScene->BeginPostEffect(p->GetCoreObject());
-
-				GetScene()->m_coreScene->GetSrcTarget()->AddRef();
-				GetScene()->m_coreScene->GetDstTarget()->AddRef();
-
-				auto src = CreateSharedPtrWithReleaseDLL(GetScene()->m_coreScene->GetSrcTarget());
-				auto dst = CreateSharedPtrWithReleaseDLL(GetScene()->m_coreScene->GetDstTarget());
-				
-				p->OnDraw(dst, src);
-
-				GetScene()->m_coreScene->EndPostEffect(p->GetCoreObject());
-			}
-		}
-	}
-
 	void Layer::Update()
 	{
 		if (!m_isUpdatedCurrent || !m_isAlive)

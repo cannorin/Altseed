@@ -29,6 +29,9 @@ namespace asd
 		void BeginUpdating();
 		void EndUpdateting();
 
+		void BeginDrawing();
+		void EndDrawing();
+
 		void DrawAdditionally();
 		void UpdateInternal();
 		void Dispose();

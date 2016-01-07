@@ -602,6 +602,12 @@ namespace asd
 		/// <param name="transition">画面遷移効果</param>
 		public static void ChangeSceneWithTransition(Scene scene, Transition transition)
 		{
+			if(previousScene != null)
+			{
+				previousScene.Dispose();
+				previousScene = null;
+			}
+
 			nextScene = scene;
 			Engine.transition = transition;
 		}

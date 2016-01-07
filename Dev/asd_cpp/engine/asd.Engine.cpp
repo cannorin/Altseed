@@ -765,6 +765,11 @@ namespace asd
 
 	void Engine::ChangeSceneWithTransition(std::shared_ptr<Scene> scene, const std::shared_ptr<Transition>& transition)
 	{
+		if (m_previousScene != nullptr)
+		{
+			m_previousScene->Dispose();
+		}
+
 		m_nextScene = scene;
 		Engine::transition = transition;
 	}

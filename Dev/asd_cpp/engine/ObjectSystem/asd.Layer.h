@@ -44,10 +44,11 @@ namespace asd
 		virtual void UpdateInternal() = 0;
 		virtual void DrawAdditionally() = 0;
 		virtual void Dispose() = 0;
+		virtual void BeginDrawing() = 0;
+		virtual void EndDrawing() = 0;
 
 		virtual void Update();
-		void BeginDrawing();
-		void EndDrawing();
+
 		void Start();
 		void Draw();
 

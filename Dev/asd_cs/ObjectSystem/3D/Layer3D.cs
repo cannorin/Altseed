@@ -366,6 +366,35 @@ namespace asd
 			contentsManager.VanishingContents.Clear();
 		}
 
+		internal override void BeginDrawing()
+		{
+			Scene.CoreScene.SetRenderTargetForDrawingLayer();
+			coreLayer3D.BeginDrawing();
+		}
+
+		internal override void EndDrawing()
+		{
+			coreLayer3D.EndDrawing();
+
+			if (postEffects.Count > 0)
+			{
+				foreach (var p in postEffects)
+				{
+					Scene.CoreScene.BeginPostEffect(p.SwigObject);
+
+					var src_ = Scene.CoreScene.GetSrcTarget();
+					var dst_ = Scene.CoreScene.GetDstTarget();
+
+					RenderTexture2D src = GC.GenerateRenderTexture2D(src_, GC.GenerationType.Get);
+					RenderTexture2D dst = GC.GenerateRenderTexture2D(dst_, GC.GenerationType.Get);
+
+					p.OnDraw(dst, src);
+
+					Scene.CoreScene.EndPostEffect(p.SwigObject);
+				}
+			}
+		}
+
 		internal override void DrawAdditionally()
 		{
 			if (!IsDrawn)

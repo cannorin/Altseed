@@ -20,6 +20,8 @@ namespace asd
 	{
 		friend class Engine;
 		friend class Layer;
+		friend class Layer2D;
+		friend class Layer3D;
 
 	public:
 		typedef std::shared_ptr<Scene> Ptr;
