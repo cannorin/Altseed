@@ -417,8 +417,6 @@ namespace asd
 		auto staticFile = graphics->GetFile()->CreateStaticFile(path);
 		if (staticFile.get() == nullptr) return nullptr;
 
-		std::vector<uint8_t> data;
-
 		if (!ImageHelper::IsDDS(staticFile->GetBuffer().data(), staticFile->GetBuffer().size())) return nullptr;
 
 		auto g = (Graphics_Imp_DX11*) graphics;
@@ -428,8 +426,8 @@ namespace asd
 
 		auto hr = DirectX::CreateDDSTextureFromMemory(
 			g->GetDevice(),
-			data.data(),
-			data.size(),
+			staticFile->GetBuffer().data(),
+			staticFile->GetBuffer().size(),
 			&texture,
 			&textureSRV);
 
