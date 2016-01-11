@@ -414,25 +414,12 @@ namespace asd
 
 	CubemapTexture_Imp* CubemapTexture_Imp_DX11::Create(Graphics_Imp* graphics, const achar* path)
 	{
-		auto loadFile = [graphics](const achar* path, std::vector<uint8_t>& dst)-> bool
-		{
-			auto staticFile = graphics->GetFile()->CreateStaticFile(path);
-			if (staticFile.get() == nullptr) return false;
-
-			dst.resize(staticFile->GetSize());
-			memcpy(dst.data(), staticFile->GetData(), staticFile->GetSize());
-
-			return true;
-		};
+		auto staticFile = graphics->GetFile()->CreateStaticFile(path);
+		if (staticFile.get() == nullptr) return nullptr;
 
 		std::vector<uint8_t> data;
 
-		if (!loadFile(path, data))
-		{
-			return nullptr;
-		}
-
-		if (!ImageHelper::IsDDS(data.data(), data.size())) return nullptr;
+		if (!ImageHelper::IsDDS(staticFile->GetBuffer().data(), staticFile->GetBuffer().size())) return nullptr;
 
 		auto g = (Graphics_Imp_DX11*) graphics;
 
