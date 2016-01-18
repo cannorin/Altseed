@@ -33,8 +33,7 @@ namespace asd
 		void EndDrawing();
 
 		void DrawAdditionally();
-		void UpdateInternal();
-		void Dispose();
+		void DisposeInternal();
 
 	protected:
 

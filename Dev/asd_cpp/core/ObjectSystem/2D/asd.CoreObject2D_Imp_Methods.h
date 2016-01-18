@@ -30,7 +30,9 @@ virtual void SetParent(CoreObject2D& parent, ChildManagementMode::Flags manageme
 	return CoreObject2D_Imp::SetParent(parent, managementMode, transformingMode);
 }
 virtual void ClearParent() override { return CoreObject2D_Imp::ClearParent(); }
+virtual const ParentInfo2D* GetParentInfo() const override { return CoreObject2D_Imp::GetParentInfo(); }
 
+// CoreObject2D_ImpクラスはCoreObject2Dクラスの派生クラスではないのでこれらの関数は委譲しない
 void AddChild(CoreObject2D* child, ChildManagementMode::Flags managementMode, ChildTransformingMode transformingMode)
 {
 	if (child == nullptr || children.find(child) != children.end()) return;
@@ -44,3 +46,8 @@ void RemoveChild(CoreObject2D* child)
 	children.erase(child);
 	child->ClearParent();
 }
+
+Vector2DF GetAbsolutePosition() override { return CoreObject2D_Imp::GetAbsolutePosition(); }
+Matrix33 GetAbsoluteMatrixToTranslate() override { return CoreObject2D_Imp::GetAbsoluteMatrixToTranslate(); }
+Matrix33 GetAbsoluteMatrixToTransform() override { return CoreObject2D_Imp::GetAbsoluteMatrixToTransform(); }
+bool GetAbsoluteBeingDrawn() const override { return CoreObject2D_Imp::GetAbsoluteBeingDrawn(); }

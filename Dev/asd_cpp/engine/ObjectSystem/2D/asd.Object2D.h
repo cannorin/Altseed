@@ -28,19 +28,19 @@ namespace asd
 		class ParentInfo2D
 		{
 		private:
-			const Object2D* m_parent;
+			Object2D* m_parent;
 			ChildManagementMode::Flags m_managementMode;
 
 		public:
 			typedef std::shared_ptr<ParentInfo2D> Ptr;
 
-			ParentInfo2D(const Object2D* parent, ChildManagementMode::Flags managementMode)
+			ParentInfo2D(Object2D* parent, ChildManagementMode::Flags managementMode)
 				: m_parent(parent)
 				, m_managementMode(managementMode)
 			{
 			}
 
-			const Object2D* GetParent() const
+			Object2D* GetParent() const
 			{
 				return m_parent;
 			}
@@ -60,18 +60,21 @@ namespace asd
 		int m_updatePriority;
 		std::function<void(int)> m_onUpdatePriorityChanged;
 
-		void Start();
-		void OnRemovedInternal();
+		void RaiseOnAdded();
+		void RaiseOnRemoved();
 		void Update();
-		void Dispose();
+		void DrawAdditionally();
 		void SetLayer(Layer2D* layer);
 		virtual CoreObject2D* GetCoreObject() const = 0;
 
 	protected:
+
 		/**
 			@brief	オーバーライドして、このオブジェクトの初期化処理を記述できる。
 		*/
-		virtual void OnStart();
+		virtual void OnAdded();
+		virtual void OnRemoved();
+		virtual void OnDispose();		
 		/**
 			@brief	オーバーライドして、このオブジェクトの更新処理を記述できる。
 		*/
@@ -81,12 +84,6 @@ namespace asd
 		*/
 		virtual void OnDrawAdditionally();
 
-		/**
-			@brief	オーバーライドして、このオブジェクトがVanishメソッドによって破棄される際の処理を記述できる。
-		*/
-		virtual void OnVanish();
-
-		virtual void OnDispose();
 
 		/**
 		@brief	通常の描画に加えてテクスチャを描画する。
@@ -193,7 +190,7 @@ namespace asd
 		/**
 			@brief	このオブジェクトを破棄する。
 		*/
-		void Vanish();
+		void Dispose();
 
 		/**
 			@brief	このオブジェクトを保持しているレイヤーを取得する。
@@ -216,6 +213,10 @@ namespace asd
 			@brief	このオブジェクトが保持している子オブジェクトを含むコンテナを取得する。
 		*/
 		const std::list<Object2D::Ptr>& GetChildren() const;
+		/**
+			@brief	このオブジェクトの親オブジェクトを取得する。親がいなければnullptrを返す。
+		*/
+		Object2D* GetParent() const;
 
 		/**
 			@brief	指定したコンポーネントをこのインスタンスに追加する。
@@ -278,5 +279,14 @@ namespace asd
 			@brief	このオブジェクトの更新の優先順位を設定する。
 		*/
 		void SetUpdatePriority(int value);
+
+		/**
+			@brief	このオブジェクトが親子関係を考慮して最終的に更新されるかどうかの真偽値を取得します。
+		*/
+		bool GetAbsoluteBeingUpdated() const;
+		/**
+			@brief	このオブジェクトが親子関係を考慮して最終的に描画されるかどうかの真偽値を取得します。
+		*/
+		bool GetAbsoluteBeingDrawn() const;
 	};
 }

@@ -6,9 +6,6 @@ using namespace std;
 
 namespace asd
 {
-	//----------------------------------------------------------------------------------
-	//
-	//----------------------------------------------------------------------------------
 	Object2D::Object2D()
 		: m_owner(nullptr)
 		, m_children(list<Object2D::Ptr>())
@@ -20,18 +17,14 @@ namespace asd
 	{
 	}
 
-	//----------------------------------------------------------------------------------
-	//
-	//----------------------------------------------------------------------------------
 	Object2D::~Object2D()
 	{
 	}
 
-	//----------------------------------------------------------------------------------
-	//
-	//----------------------------------------------------------------------------------
-	void Object2D::Start()
+
+	void Object2D::RaiseOnAdded()
 	{
+		OnAdded();
 		for (auto& child : m_children)
 		{
 			if (IS_INHERITED(child, RegistrationToLayer))
@@ -39,10 +32,9 @@ namespace asd
 				GetLayer()->AddObject(child);
 			}
 		}
-		OnStart();
 	}
 
-	void Object2D::OnRemovedInternal()
+	void Object2D::RaiseOnRemoved()
 	{
 		for (auto& child : m_children)
 		{
@@ -51,12 +43,27 @@ namespace asd
 				GetLayer()->RemoveObject(child);
 			}
 		}
+		OnRemoved();
+	}
+
+	void Object2D::Dispose()
+	{
+		for (auto& child : m_children)
+		{
+			GetCoreObject()->RemoveChild(child->GetCoreObject());
+			child->m_parentInfo.reset();
+			if (IS_INHERITED(child, Vanishment))
+			{
+				child->Dispose();
+			}
+		}
+		GetCoreObject()->SetIsAlive(false);
+		OnDispose();
 	}
 
 	void Object2D::Update()
 	{
-		if (!m_isUpdated || !GetIsAlive()
-			|| (IS_INHERITED(this, IsUpdated) && !m_parentInfo->GetParent()->GetIsUpdated()))
+		if (!GetIsAlive() || !GetAbsoluteBeingUpdated())
 		{
 			return;
 		}
@@ -78,16 +85,24 @@ namespace asd
 		m_componentManager.Update();
 	}
 
-	void Object2D::Dispose()
+	void Object2D::DrawAdditionally()
 	{
-		for (auto& child : m_children)
+		if (GetIsAlive() && GetAbsoluteBeingDrawn())
 		{
-			GetCoreObject()->RemoveChild(child->GetCoreObject());
+			OnDrawAdditionally();
 		}
-		OnDispose();
 	}
 
-	void Object2D::OnStart()
+
+	void Object2D::OnAdded()
+	{
+	}
+
+	void Object2D::OnRemoved()
+	{
+	}
+
+	void Object2D::OnDispose()
 	{
 	}
 
@@ -99,13 +114,6 @@ namespace asd
 	{
 	}
 
-	void Object2D::OnVanish()
-	{
-	}
-
-	void Object2D::OnDispose()
-	{
-	}
 
 	void Object2D::DrawSpriteAdditionally(Vector2DF upperLeftPos, Vector2DF upperRightPos, Vector2DF lowerRightPos, Vector2DF lowerLeftPos,
 		Color upperLeftCol, Color upperRightCol, Color lowerRightCol, Color lowerLeftCol,
@@ -164,22 +172,10 @@ namespace asd
 		layer->DrawShapeAdditionally(shape, color, texture, alphaBlend, priority);
 	}
 
+
 	bool Object2D::GetIsAlive() const
 	{
 		return GetCoreObject()->GetIsAlive();
-	}
-
-	void Object2D::Vanish()
-	{
-		GetCoreObject()->SetIsAlive(false);
-		for (auto& child : m_children)
-		{
-			if (IS_INHERITED(child, Vanishment))
-			{
-				child->Vanish();
-			}
-		}
-		OnVanish();
 	}
 
 	Layer2D* Object2D::GetLayer() const
@@ -197,6 +193,19 @@ namespace asd
 		GetCoreObject()->AddChild((child->GetCoreObject()), managementMode, transformingMode);
 		m_children.push_back(child);
 		child->m_parentInfo = make_shared<ParentInfo2D>(this, managementMode);
+
+		if ((managementMode & ChildManagementMode::RegistrationToLayer) != 0)
+		{
+			auto childLayer = child->GetLayer();
+			if (childLayer != GetLayer() && childLayer != nullptr)
+			{
+				childLayer->RemoveObject(child);
+			}
+			if (m_owner != nullptr)
+			{
+				m_owner->AddObject(child);
+			}
+		}
 	}
 
 	void Object2D::RemoveChild(const Object2D::Ptr& child)
@@ -204,6 +213,11 @@ namespace asd
 		GetCoreObject()->RemoveChild((child->GetCoreObject()));
 		m_children.remove(child);
 		child->m_parentInfo.reset();
+	}
+
+	Object2D* Object2D::GetParent() const
+	{
+		return m_parentInfo->GetParent();
 	}
 
 	const std::list<Object2D::Ptr>& Object2D::GetChildren() const
@@ -308,5 +322,16 @@ namespace asd
 		}
 	}
 
+	bool Object2D::GetAbsoluteBeingUpdated() const
+	{
+		return m_isUpdated
+			&& !(IS_INHERITED(this, IsUpdated)
+			&& !m_parentInfo->GetParent()->GetAbsoluteBeingUpdated());
+	}
+
+	bool Object2D::GetAbsoluteBeingDrawn() const
+	{
+		return GetCoreObject()->GetAbsoluteBeingDrawn();
+	}
 #pragma endregion
 }

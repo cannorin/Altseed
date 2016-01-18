@@ -35,7 +35,7 @@ namespace asd
 
 			contentsManager = new ContentsManager<Object3D>();
 
-			commonObject = coreLayer3D;
+			CoreLayer = coreLayer3D;
 		}
 
 		#region GC対策
@@ -410,7 +410,7 @@ namespace asd
 			OnDrawAdditionally();
 		}
 
-		internal override void Dispose()
+		public override void Dispose()
 		{
 			foreach(var item in Objects)
 			{
@@ -419,7 +419,9 @@ namespace asd
 					item.Dispose();
 				}
 			}
+			IsAlive = false;
 			OnDispose();
+			ForceToRelease();
 		}
 
 

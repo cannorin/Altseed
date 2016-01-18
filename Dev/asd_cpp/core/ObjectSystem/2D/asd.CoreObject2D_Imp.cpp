@@ -91,4 +91,42 @@ namespace asd
 
 		return nullptr;
 	}
+
+
+	Vector2DF CoreObject2D_Imp::GetAbsolutePosition()
+	{
+		auto vec3 = Vector3DF(0, 0, 1);
+		auto abs = GetAbsoluteMatrixToTransform();
+		auto result = abs * vec3;
+		return Vector2DF(result.X, result.Y);
+	}
+
+	Matrix33 CoreObject2D_Imp::GetAbsoluteMatrixToTranslate()
+	{
+		if (m_parentInfo != nullptr)
+		{
+			return m_parentInfo->GetInheritedMatrixToTranslate() * GetMatrixToTranslate();
+		}
+		
+		return m_transform.GetMatrixToTranslate();
+	}
+
+	Matrix33 CoreObject2D_Imp::GetAbsoluteMatrixToTransform()
+	{
+		if (m_parentInfo != nullptr)
+		{
+			return m_parentInfo->GetInheritedMatrixToTransform() * GetMatrixToTransform();
+		}
+
+		return m_transform.GetMatrixToTransform();
+	}
+
+	bool CoreObject2D_Imp::GetAbsoluteBeingDrawn() const
+	{
+		if (m_parentInfo != nullptr)
+		{
+			return m_objectInfo.GetIsDrawn() && m_parentInfo->GetInheritedBeingDrawn();
+		}
+		return m_objectInfo.GetIsDrawn();
+	}
 }

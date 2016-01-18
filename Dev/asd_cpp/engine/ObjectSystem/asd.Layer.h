@@ -39,25 +39,27 @@ namespace asd
 
 		std::shared_ptr<CoreLayer> GetCoreLayer() const;
 
+		virtual void DisposeInternal() = 0;
 		virtual void BeginUpdating() = 0;
 		virtual void EndUpdateting() = 0;
 		virtual void UpdateInternal() = 0;
 		virtual void DrawAdditionally() = 0;
-		virtual void Dispose() = 0;
 		virtual void BeginDrawing() = 0;
 		virtual void EndDrawing() = 0;
 
+		void RaiseOnAdded();
+		void RaiseOnRemoved();
 		virtual void Update();
 
-		void Start();
-		void Draw();
 
 	protected:
 
 		/**
 		@brief	オーバーライドして、このレイヤーの初期化処理を記述できる。
 		*/
-		virtual void OnStart();
+		virtual void OnAdded();
+
+		virtual void OnRemoved();
 		
 		/**
 		@brief	オーバーライドして、このレイヤーが更新される前の処理を記述できる。
@@ -145,7 +147,7 @@ namespace asd
 		/**
 			@brief	このレイヤーを破棄する。
 		*/
-		void Vanish();
+		void Dispose();
 
 		/**
 			@brief	レイヤーの種類を取得する。
